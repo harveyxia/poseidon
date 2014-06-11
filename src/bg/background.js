@@ -5,9 +5,33 @@
 // });
 
 
-//example of using a message handler from the inject scripts
-chrome.extension.onMessage.addListener(
-  function(request, sender, sendResponse) {
-  	chrome.pageAction.show(sender.tab.id);
-    sendResponse();
-  });
+function getData() {
+    function callback(tabs) {
+        var timestamp = (new Date()).toISOString();
+        var data = {};
+        data[timestamp] = [];
+        tabs.forEach(function(tab) {
+            data[timestamp].push({
+                    url: tab.url,
+                    active: tab.active
+                });
+            chrome.storage.sync.set(data, debug);
+        });
+    }
+    chrome.tabs.query({active: true}, callback);
+}
+
+function debug() {
+    if (chrome.runtime.lastError) {
+        console.log(chrome.runtime.lastError);
+    } else {
+        console.log('Successfully synced.');
+    }
+}
+
+chrome.alarms.create('schedule', { delayInMinutes: 1, periodInMinutes: 1});
+
+chrome.alarms.onAlarm.addListener(function (alarm) {
+    console.log('Alarm fired.');
+    getData();
+});
