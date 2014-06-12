@@ -24,8 +24,9 @@ function collectData() {
         data[timestamp] = [];
         windows.forEach(function(window) {
             window.tabs.forEach(function(tab) {
+                var hostname = (new URL(tab.url)).hostname;
                 data[timestamp].push({
-                        url: tab.url,           // sanitize URL for hostname
+                        url: hostname,           // sanitize URL for hostname
                         active: tab.active
                     });
             });
@@ -37,6 +38,7 @@ function collectData() {
 function init() {
     createAlarm(1);
     initAlarm(collectData);
+
     chrome.browserAction.onClicked.addListener(function(tab) {
       chrome.tabs.create({'url': chrome.extension.getURL('vis.html')}, function(tab) {
         // Tab opened.
