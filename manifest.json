@@ -16,6 +16,10 @@
     ],
     "persistent": true
   },
+  "browser_action": {
+    "default_icon": "icons/icon48.png",
+    "default_title": "Poseidon"
+  },
   "permissions": [
     "alarms",
     "storage",
