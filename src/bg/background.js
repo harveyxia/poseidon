@@ -36,8 +36,8 @@ function collectData() {
 }
 
 function init() {
-    createAlarm(1);
-    initAlarm(collectData);
+    // createAlarm(1);
+    // initAlarm(collectData);
 
     chrome.browserAction.onClicked.addListener(function(tab) {
       chrome.tabs.create({'url': chrome.extension.getURL('vis.html')}, function(tab) {
