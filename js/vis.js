@@ -27,8 +27,9 @@ function draw_vis() {
     .attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.top + margin.bottom)
     .append('g')
-      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
+  /************** CREATE SCALES AND DRAW AXES **************/
   var x = d3.time.scale()
     .domain([new Date(raw_data[0].time), new Date(raw_data[raw_data.length - 1].time)])
     .range([0, width - margin.top]);
@@ -69,18 +70,17 @@ function draw_vis() {
     .attr('stroke', 'black')
     .attr('stroke-width', 1)
     .attr('fill', 'none');
-var i = 0;
+
+  /*********************** DRAW POINTS ***************************/
+
   hostnames.forEach(function(hostname) {
-    console.log(hostname);
-    console.log(y(hostname));
-    // var point = vis.select(hostname.replace(/\./g, '-') +'-circle')
-    var point = vis.selectAll('.circle')
+    var point = vis.append('g')
+      .selectAll()
       .data(data[hostname])
       .enter().append('circle')
       .attr('cx', function(d) { return x(new Date(d)) })
       .attr('cy', function(d) { return y(hostname) })
-      .attr('r', 2.5);
-      i++;
+      .attr('r', 4);
   });
 
     // plot_site('mail.google.com');
