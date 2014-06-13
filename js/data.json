@@ -251,10 +251,6 @@
             "url": "www.facebook.com"
         },
         {
-            "active": false,
-            "url": "www.youtube.com"
-        },
-        {
             "active": true,
             "url": "devtools"
         }
@@ -273,10 +269,6 @@
             "url": "www.facebook.com"
         },
         {
-            "active": false,
-            "url": "www.youtube.com"
-        },
-        {
             "active": true,
             "url": "devtools"
         }
@@ -289,10 +281,6 @@
         {
             "active": false,
             "url": "extensions"
-        },
-        {
-            "active": true,
-            "url": "www.youtube.com"
         },
         {
             "active": true,
@@ -310,10 +298,6 @@
         },
         {
             "active": true,
-            "url": "www.youtube.com"
-        },
-        {
-            "active": true,
             "url": "devtools"
         }
     ],
@@ -328,10 +312,6 @@
         },
         {
             "active": true,
-            "url": "www.youtube.com"
-        },
-        {
-            "active": true,
             "url": "devtools"
         }
     ],
@@ -343,14 +323,6 @@
         {
             "active": false,
             "url": "extensions"
-        },
-        {
-            "active": true,
-            "url": "www.youtube.com"
-        },
-        {
-            "active": false,
-            "url": "www.youtube.com"
         },
         {
             "active": true,
@@ -698,10 +670,7 @@
             "active": false,
             "url": "extensions"
         },
-        {
-            "active": true,
-            "url": "www.youtube.com"
-        },
+        
         {
             "active": true,
             "url": "devtools"

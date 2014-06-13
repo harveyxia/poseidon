@@ -1,9 +1,11 @@
+var raw_data;
 var data;
+var hostnames = [];
 var y;
 
-var margin = {top: 50, right: 0, bottom: 0, left: 100},
+var margin = {top: 50, right: 0, bottom: 0, left: 300},
     width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+    height = 1000 - margin.top - margin.bottom;
 
 function init() {
   // chrome.storage.sync.get(function(json) {
@@ -13,7 +15,8 @@ function init() {
   // load data locally for now
   d3.json('/js/data.json', function(error, json) {
     if (error) return console.warn(error);
-    data = format_json(json);
+    raw_data = format_json(json);
+    data = format_json2(json);
     draw_vis();
     console.log(data);
   });
@@ -27,11 +30,11 @@ function draw_vis() {
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
   var x = d3.time.scale()
-    .domain([new Date(data[0].time), new Date(data[data.length - 1].time)])
+    .domain([new Date(raw_data[0].time), new Date(raw_data[raw_data.length - 1].time)])
     .range([0, width - margin.top]);
 
   var y = d3.scale.ordinal()
-    .domain(['Youtube', 'Google', 'Facebook'])
+    .domain(hostnames)
     .rangePoints([height - margin.bottom - margin.top, 0],1);
 
   var x_axis = d3.svg.axis()
@@ -57,39 +60,66 @@ function draw_vis() {
 
   // references lines for Y axis
   vis.selectAll('line.y')
-    .data([y('Youtube'), y('Google'), y('Facebook')])
+    .data(hostnames.map(y))
     .enter()
     .append('path')
-    .attr('d', function(d) { return 'M0,' + d + 'L' + width + ',' + d; })
+    .attr('d', function(d) {
+      return 'M0,' + d + 'L' + width + ',' + d;
+    })
     .attr('stroke', 'black')
     .attr('stroke-width', 1)
     .attr('fill', 'none');
+var i = 0;
+  hostnames.forEach(function(hostname) {
+    console.log(hostname);
+    console.log(y(hostname));
+    // var point = vis.select(hostname.replace(/\./g, '-') +'-circle')
+    var point = vis.selectAll('.circle')
+      .data(data[hostname])
+      .enter().append('circle')
+      .attr('cx', function(d) { return x(new Date(d)) })
+      .attr('cy', function(d) { return y(hostname) })
+      .attr('r', 2.5);
+      i++;
+  });
 
+    // plot_site('mail.google.com');
+    // plot_site('www.facebook.com');
 
-  var yt_line_function = d3.svg.line()
-    .x(function(d) { return x(new Date(d.time))} )
-    .y(function(d) { return ('www.youtube.com' in d.tabs) ?
-                        y('Youtube') : height - margin.top;
-                    })
-    .interpolate('step-before');
+  // var yt_line_function = d3.svg.line()
+  //   .x(function(d) { return x(new Date(d.time))  } )
+  //   .y(function(d) { return y('Youtube') })
+  //   .interpolate('step-before');
 
-    var yt_line = vis.append('path')
-      .attr('d', yt_line_function(data))
-      .attr('stroke', 'blue')
-      .attr('stroke-width', 2)
-      .attr('fill', 'none');
+  //   var yt_line = vis.append('path')
+  //     .attr('d', yt_line_function(data.filter(function(item) { return item.tabs['www.youtube.com'] } )))
+  //     .attr('stroke', 'blue')
+  //     .attr('stroke-width', 5)
+  //     .attr('fill', 'none');
 
   // var point = vis.selectAll('circle')
-  //   .data(data)
+  //   .data(data['www.youtube.com'])
   //   .enter().append('circle')
-  //   .attr('cx', function(d) { return x(new Date(d.time))})
-  //   .attr('cy', 5)
+  //   .attr('cx', function(d) { return x(new Date(d)) })
+  //   .attr('cy', function(d) { return y('Youtube') })
   //   .attr('r', 2.5);
 
+  //   console.log(y('Youtube') + height);
+
   // point.append('circle')
-    
-  
+  // function plot_site(hostname) {
+  //   console.log(hostname);
+  //   console.log(hostname + y(hostname)); 
+  //   var point = vis.selectAll('circle')
+  //     .data(data[hostname])
+  //     .enter().append('circle')
+  //     .attr('cx', function(d) { return x(new Date(d)) })
+  //     .attr('cy', function(d) { return y(hostname) })
+  //     .attr('r', 2.5);
+  // }
 }
+
+
 
 // formats localStorage JSON data into an array
 function format_json(json) {
@@ -98,11 +128,9 @@ function format_json(json) {
     var obj = {
       time: item,
       tabs: {}
-      // tabs: json[item]
     };
     json[item].forEach(function(tab) {
-      // var tab_obj = {};
-      // tab_obj[tab.url] = { active: tab.active };
+      if (hostnames.indexOf(tab.url) === -1) { hostnames.push(tab.url); }
       obj.tabs[tab.url] = { active: tab.active };
     });
     new_json.push(obj);
@@ -112,5 +140,36 @@ function format_json(json) {
     return (new Date(a.time)) - (new Date(b.time))
   });
 }
+
+function format_json2(json) {
+  var new_json = {};
+  for (var item in json) {
+    json[item].forEach(function(tab) {
+      // add to hostnames array
+        if (hostnames.indexOf(tab.url) === -1) { hostnames.push(tab.url); }
+        if (!(tab.url in new_json)) {
+          new_json[tab.url] = [item];
+        } else {
+          new_json[tab.url].push(item);
+        }
+    });
+  }
+  return new_json;
+}
+
+// function get_time_ranges(data) {
+//   var time_ranges = {};
+//   hostnames.forEach(function(hostname) {
+//     var interval = false;
+//     time_ranges[hostname] = [];
+//     data.forEach(function(datum) {
+//         if (interval && (hostname in datum.tabs)) {
+
+//         } else {
+//           timeranges[hostname].push()
+//         }
+//     });
+//   });
+// }
 
 init();
