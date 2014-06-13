@@ -17,6 +17,7 @@ function init() {
     if (error) return console.warn(error);
     raw_data = format_json(json);
     data = format_json2(json);
+    hostnames = sort_hostnames(hostnames);
     draw_vis();
     console.log(data);
   });
@@ -155,6 +156,14 @@ function format_json2(json) {
     });
   }
   return new_json;
+}
+
+function sort_hostnames(hostnames) {
+  hostnames.sort(function(a,b) {
+    return data[a].length - data[b].length;
+  });
+
+  return hostnames;
 }
 
 // function get_time_ranges(data) {
