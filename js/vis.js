@@ -1,6 +1,7 @@
 var data;
+var y;
 
-var margin = {top: 50, right: 0, bottom: 0, left: 50},
+var margin = {top: 50, right: 0, bottom: 0, left: 100},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
@@ -31,7 +32,7 @@ function draw_vis() {
 
   var y = d3.scale.ordinal()
     .domain(['Youtube', 'Google', 'Facebook'])
-    .rangePoints([height - margin.bottom - margin.top, 0], 1);
+    .rangePoints([height - margin.bottom - margin.top, 0],1);
 
   var x_axis = d3.svg.axis()
     .scale(x)
@@ -42,8 +43,8 @@ function draw_vis() {
 
   var y_axis = d3.svg.axis()
     .scale(y)
-    .tickSize(1)
-    .orient('right');
+    .tickSize(2)
+    .orient('left');
 
   vis.append('g')
     .attr('class', 'x-axis')
@@ -54,11 +55,24 @@ function draw_vis() {
     .attr('class', 'y-axis')
     .call(y_axis);
 
+  // references lines for Y axis
+  vis.selectAll('line.y')
+    .data([y('Youtube'), y('Google'), y('Facebook')])
+    .enter()
+    .append('path')
+    .attr('d', function(d) { return 'M0,' + d + 'L' + width + ',' + d; })
+    .attr('stroke', 'black')
+    .attr('stroke-width', 1)
+    .attr('fill', 'none');
+
 
   var yt_line_function = d3.svg.line()
     .x(function(d) { return x(new Date(d.time))} )
-    .y(function(d) { return y('www.youtube.com' in d.tabs) })
-    .interpolate('linear');
+    .y(function(d) { return ('www.youtube.com' in d.tabs) ?
+                        y('Youtube') : height - margin.top;
+                    })
+    .interpolate('step-before');
+
     var yt_line = vis.append('path')
       .attr('d', yt_line_function(data))
       .attr('stroke', 'blue')
