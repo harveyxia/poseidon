@@ -1,7 +1,8 @@
 var data;
 
-var width = 1000;
-var height = 700;
+var margin = {top: 50, right: 0, bottom: 0, left: 50},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
 
 function init() {
   // chrome.storage.sync.get(function(json) {
@@ -18,13 +19,19 @@ function init() {
 }
 
 function draw_vis() {
-  var vis = d3.select('.vis')
-    .attr('width', width)
-    .attr('height', height);
+  var vis = d3.select('body').append('svg')
+    .attr('width', width + margin.left + margin.right)
+    .attr('height', height + margin.top + margin.bottom)
+    .append('g')
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
   var x = d3.time.scale()
     .domain([new Date(data[0].time), new Date(data[data.length - 1].time)])
-    .range([50, width - 100]);
+    .range([0, width - margin.top]);
+
+  var y = d3.scale.ordinal()
+    .domain(['Youtube', 'Google', 'Facebook'])
+    .rangePoints([height - margin.bottom - margin.top, 0], 1);
 
   var x_axis = d3.svg.axis()
     .scale(x)
@@ -33,17 +40,19 @@ function draw_vis() {
     .tickFormat(d3.time.format('%X'))
     .tickSize(2);
 
-    vis.append('g')
-      .attr('class', 'x-axis')
-      .attr('transform', 'translate(0, ' + (height - 200) + ')')
-      .call(x_axis);
+  var y_axis = d3.svg.axis()
+    .scale(y)
+    .tickSize(1)
+    .orient('right');
 
-  var y = d3.scale.linear()
-    .domain([0, 1])
-    .range([height, 0]);
-    var y_axis = d3.svg.axis()
-      .scale(y)
-      .orient('left');
+  vis.append('g')
+    .attr('class', 'x-axis')
+    .attr('transform', 'translate(0, ' + (height - margin.top) + ')')
+    .call(x_axis);
+  
+  vis.append('g')
+    .attr('class', 'y-axis')
+    .call(y_axis);
 
 
   var yt_line_function = d3.svg.line()
@@ -56,12 +65,12 @@ function draw_vis() {
       .attr('stroke-width', 2)
       .attr('fill', 'none');
 
-  var point = vis.selectAll('circle')
-    .data(data)
-    .enter().append('circle')
-    .attr('cx', function(d) { return x(new Date(d.time))})
-    .attr('cy', 5)
-    .attr('r', 2.5);
+  // var point = vis.selectAll('circle')
+  //   .data(data)
+  //   .enter().append('circle')
+  //   .attr('cx', function(d) { return x(new Date(d.time))})
+  //   .attr('cy', 5)
+  //   .attr('r', 2.5);
 
   // point.append('circle')
     
