@@ -28,7 +28,8 @@ function draw_vis() {
     .attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.top + margin.bottom)
     .append('g')
-    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+    .on("click", click);
 
   /************** CREATE SCALES AND DRAW AXES **************/
   var x = d3.time.scale()
@@ -69,7 +70,7 @@ function draw_vis() {
       return 'M0,' + d + 'L' + width + ',' + d;
     })
     .attr('stroke', 'black')
-    .attr('stroke-width', 1)
+    .attr('stroke-width', 0.5)
     .attr('fill', 'none');
 
   /*********************** DRAW POINTS ***************************/
@@ -84,43 +85,23 @@ function draw_vis() {
       .attr('r', 4);
   });
 
-    // plot_site('mail.google.com');
-    // plot_site('www.facebook.com');
-
-  // var yt_line_function = d3.svg.line()
-  //   .x(function(d) { return x(new Date(d.time))  } )
-  //   .y(function(d) { return y('Youtube') })
-  //   .interpolate('step-before');
-
-  //   var yt_line = vis.append('path')
-  //     .attr('d', yt_line_function(data.filter(function(item) { return item.tabs['www.youtube.com'] } )))
-  //     .attr('stroke', 'blue')
-  //     .attr('stroke-width', 5)
-  //     .attr('fill', 'none');
-
-  // var point = vis.selectAll('circle')
-  //   .data(data['www.youtube.com'])
-  //   .enter().append('circle')
-  //   .attr('cx', function(d) { return x(new Date(d)) })
-  //   .attr('cy', function(d) { return y('Youtube') })
-  //   .attr('r', 2.5);
-
-  //   console.log(y('Youtube') + height);
-
-  // point.append('circle')
-  // function plot_site(hostname) {
-  //   console.log(hostname);
-  //   console.log(hostname + y(hostname)); 
-  //   var point = vis.selectAll('circle')
-  //     .data(data[hostname])
-  //     .enter().append('circle')
-  //     .attr('cx', function(d) { return x(new Date(d)) })
-  //     .attr('cy', function(d) { return y(hostname) })
-  //     .attr('r', 2.5);
-  // }
+  /*********************** DYNAMIC STUFF ****************************/
+  function click() {
+    hostnames = reverse_hostnames(hostnames);
+    console.log(hostnames);
+    var t = vis.transition().duration(750);
+    // t.selectAll('g')
+    hostnames.forEach(function(hostname) {
+    var point = vis.append('g')
+      .selectAll()
+      .data(data[hostname])
+      .enter().append('circle')
+      .attr('cx', function(d) { return x(new Date(d)) })
+      .attr('cy', function(d) { return y(hostname) })
+      .attr('r', 4);
+    });
+  }
 }
-
-
 
 // formats localStorage JSON data into an array
 function format_json(json) {
@@ -162,7 +143,13 @@ function sort_hostnames(hostnames) {
   hostnames.sort(function(a,b) {
     return data[a].length - data[b].length;
   });
+  return hostnames;
+}
 
+function reverse_hostnames(hostnames) {
+  hostnames.sort(function(a,b) {
+    return data[b].length - data[a].length;
+  });
   return hostnames;
 }
 
